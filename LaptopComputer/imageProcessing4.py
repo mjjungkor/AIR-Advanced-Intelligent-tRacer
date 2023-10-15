@@ -33,7 +33,7 @@ class ImageHandling(Node):
         fov_width=320
         fov_height=240
         self.image_center = (int(fov_width/2), int(fov_height/2))  # 이미지 중심 좌표
-        self.const_match_x=1.0 # 실험을 통해 등록된 이미지와 카메라를 사용해서 매치되었을때 거리 고정 상수
+        self.target_real_size=0.09 # 실제 물체의 크기[m]
 
         self.client=self.create_client(TargetCommand,'target_command')
         while not self.client.wait_for_service(timeout_sec=1.0):
@@ -85,7 +85,7 @@ class ImageHandling(Node):
                 delta_x = int(x+w/2) - self.image_center[0]
                 delta_y = int(y+h/2) - self.image_center[1]
                 # 카메라 초점 거리를 이용하여 객체까지의 거리 계산(ChatGPT)
-                distance_to_object = (self.focal_length * 2) / (delta_x**2 + delta_y**2)
+                distance_to_object = (self.focal_length * self.target_real_size) / math.sqrt((delta_x**2 + delta_y**2))
                 cv2.putText(frame,'distance:%.3f'%distance_to_object,(10,10), cv2.FONT_HERSHEY_PLAIN, 1, (0,0,255),1)
                 
                 # print(distance_to_object)
